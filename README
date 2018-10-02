@@ -1,0 +1,37 @@
+Installation:
+
+    git clone git://github.com/Giv3n1337/dotvim.git ~/.vim
+
+Create symlink:
+
+    ln -s ~/.vim/vimrc ~/.vimrc
+
+Install Plugins:
+    
+    vim -> :PlugUpdate
+
+Add Plugin:    
+    
+    1.) vim ~/.vimrc
+    2.) add "Plug 'autor/plugin-name'" 
+            between plug#begin() and plug#end()
+    3.) esc -> :wq
+    4.) vim -> :PlugInstall [name... ]
+    
+Update Plugins:
+
+    vim -> :PlugUpdate [name... ]
+
+Check Status:
+
+    vim -> PlugStatus
+
+Upgrade Plugin Handler:
+
+    vim -> PlugUpgrade
+
+
+Detailed information regarding vim-plug:
+    
+    https://github.com/junegunn/vim-plug 
+        

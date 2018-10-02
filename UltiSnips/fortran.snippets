@@ -1,0 +1,585 @@
+#------------------------ MODULE ----------------------------------------------
+snippet module "module"
+module ${1:${VISUAL:<module_name>}}
+	
+	implicit none
+	save
+
+	! parameters
+	${2:<parameters>}
+
+	contains
+
+		! methods
+		${0:<methods>}
+
+end module $1
+endsnippet 
+
+#------------------------ PROGRAM ---------------------------------------------
+snippet program "program"
+program ${1:${VISUAL:<program_name>}}
+
+	implicit none
+
+	$0
+
+end program $1
+endsnippet
+
+#------------------------ LOOPS -----------------------------------------------
+snippet do "do"
+do ${1::i} = $2 
+	${0:${VISUAL}}
+end do
+endsnippet
+
+
+snippet while "do while"
+do while (${1:<contition>})
+	${0:${VISUAL}}
+end do
+endsnippet
+
+#------------------------ IF/ ELSE-IF -----------------------------------------
+snippet if "if"
+if (${1:<condition>}) then 
+	${0:${VISUAL}}
+end if
+endsnippet
+
+
+snippet elif "else if"
+else if (${1:<condition>}) then
+	${0:${VISUAL}}
+endsnippet
+
+#------------------------ DATA TYPES ------------------------------------------
+snippet string "character"
+character(len=${1:<length>}) $0
+endsnippet
+
+
+snippet dp "double precision"
+double precision $0
+endsnippet
+
+
+snippet rdp "real(dp)"
+real(dp) $0
+endsnippet
+
+
+snippet int "integer"
+integer $0
+endsnippet
+
+
+snippet dim	"dimension"
+dimension($0) 
+endsnippet
+
+
+snippet 'inte(nt)?' "intent" rb
+intent(${0:in|inout|out})
+endsnippet
+
+
+snippet alloc "allocate"
+allocate($0)
+endsnippet
+
+
+snippet dealloc "deallocate"
+deallocate($0)
+endsnippet
+
+
+#------------------------ READ/WRITE ------------------------------------------
+snippet print "write(*,*)"
+write(*,*) $0
+endsnippet
+
+
+snippet printf "write(*,'(format)')"
+write(*,'(${1:${VISUAL:<format>}})') $0
+endsnippet
+
+
+snippet write "write(target,*)"
+write(${1:${VISUAL:<target>}},*) $0
+endsnippet
+
+
+snippet writef "write(target,'(foramt)')"
+write(${1:${VISUAL:<target>}},'(${2:<format})') $0
+endsnippet
+
+
+
+post_jump "if snip.tabstop == 0: snip.buffer[snip.snippet_start[0]:snip.snippet_end[0]]=''"
+snippet inqf "inquire(filename, [specifiers])"
+`!p snip.rv = inq_info([t[i] for i in range(1,7)], True)`
+inquire(file=${1:${VISUAL:<filename>}}${2:, exist=exists}${3:, form=is_form}${4:, access=acc}${5:, opened=is_open}${6:, number=num}$0) 
+endsnippet
+
+
+post_jump "if snip.tabstop == 0: snip.buffer[snip.snippet_start[0]:snip.snippet_end[0]]=''"
+snippet inqu "inquire(unit, [specifiers])"
+`!p snip.rv = inq_info([t[i] for i in range(1,7)], False)`
+inquire(unit=${1:<unit>}${2:, exist=exists}${3:, form=is_form}${4:, access=acc}${5:, opened=is_open}${6:, name=fname}$0) 
+endsnippet 
+
+snippet open "opens a file"
+open(unit=${1:20}, file=${2:${VISUAL:<filename>}}, status='${3:new|old|unknown|replace}', &
+	action='${4:read|write|readwrite},form='${5:formatted}'${0:, iostat=io_err}) 
+endsnippet 
+
+snippet read "read(unit,'(format)'), iostat)"
+read(unit=${1:*},fmt='(${2:*})'${3:, iostat=read_stat}) $0
+endsnippet
+
+snippet read_loop "loop over read statements"
+line_count = ${1:<first_line>}
+do 
+	read(unit=${2:<unit>},fmt=${3:*}, iostat=${4:read_stat}) ${5:<value(s)>}
+	
+	! if error or eof exit loop 
+	if (read_stat /= 0) then 
+		exit
+	end if 
+	! update line count
+	line_count = line_count + 1
+end do 
+
+! error reading line 
+if (read_stat > 0) then 
+	write(*,*) 'ERROR: Unable to read line', line_count, '!' 
+end if	
+endsnippet
+
+
+snippet input_sh "read data from file skipping header"
+open(unit=${1:20}, file=${2:${VISUAL:<filename>}}, status='old', &
+	action='read', form='${3:formatted}', iostat=open_stat)
+
+! if file can be opened 
+if (open_stat == 0) then
+	
+	! skip header 
+	do ${4:i} = 1, ${5:<n_header_lines>}
+		read(unit=$1,*,read_stat)
+		if (read_stat /= 0) exit 
+	end do	
+
+	! read data
+	${0:<read_statements/loop>}
+	
+else 
+	write(*,*) 'ERROR: Can't open file! iostat: ', open_stat, '!'
+
+! close file 
+close(unit=$1)
+endsnippet 
+
+
+snippet input "read data from file"
+open(unit=${1:20}, file=${2:${VISUAL:<filename>}}, status='old', &
+	action='read', form='${3:formatted}', iostat=open_stat)
+
+! if file can be opened 
+if (open_stat == 0) then 
+
+	! read data
+	${0:<read_statements/loop>}
+
+! error opening the file:q
+else 
+	write(*,*) 'ERROR: Can't open file! iostat: ', open_stat, '!'
+end if 
+
+! close file 
+close(unit=$1)
+endsnippet
+
+
+snippet write_loop "write loop"
+do ${1:i} = ${2:1}, ${3:<end>}
+	write(unit=${4:<unit>},fmt=${5:*}, iostat=${6:write_stat}) ${7:<value(s)>}
+	
+	! if error or eof exit loop 
+	if (write_stat /= 0) then 
+		exit 
+	end if 
+end do 
+
+! error writing data 
+if (write_stat > 0) then 
+	write(*,*) 'ERROR: Unable to write file! iostat:', write_stat, '!' 
+end if	
+endsnippet
+
+
+snippet output "write data to file"
+! write out condition	
+if (${1:<write_out_condition>}) then
+
+	! open file 
+	open(unit=${2:20}, file=${3:${VISUAL:<filename>}}, status=${4:'new'}, &
+		action='write', form='${5:formatted}', iostat=open_stat)
+
+	! if file can be opened 
+	if (open_stat == 0) then
+		
+		! write out data
+		${0:<write_statements/loop>}
+
+	! error opening the file 
+	else 
+		write(*,*) "ERROR: Can't open file! iostat: ", open_stat, '!'
+	end if
+
+	! close file
+	close(unit=$2)
+end if 
+endsnippet
+
+
+
+#------------------------ COMMENT ---------------------------------------------
+snippet hl "comment highlight"
+`p! cs = get_commentstring()
+tab = get_tab()
+spaces = get_indent()[:-len(tab)]
+snip.rv = cs + '*'*(80-len(spaces))
+`
+endsnippet
+
+
+post_jump "add_method_info(snip)"
+snippet "(\s*)info_m\s*(.*)" "add method info" rtm
+`!p snip.rv = f"{match.group(1)};{match.group(2)}"`
+endsnippet
+
+
+post_jump "add_var_info(snip)"
+snippet "(\s*)info_v\s*(.*)" "add varables/parameters info" rtm 
+`!p snip.rv=f"{match.group(1)};{match.group(2)}"`;${VISUAL:`!p snip.rv = get_args_below(snip,3)`}
+endsnippet
+
+
+#------------------------ SUBROUTINE ------------------------------------------
+post_jump "if snip.tabstop == 0: add_varArgs_ts(snip,1,2,3,'subroutine')" 
+snippet "sub(routine)?" "subroutine" rtm
+subroutine ${1:${VISUAL:<subroutine_name>}}(${2:<args>})
+`!p snip.rv = varArgsDef(t[2],False)`
+	! Output:
+	!	 ${3:<output>} .
+		
+	implicit none
+`!p snip.rv = varArgs(t[2],False,t[3])`
+	$0
+
+end subroutine $1
+
+endsnippet
+
+snippet subr "simple subroutine"
+subroutine ${1:${VISUAL:<subroutine_name>}}(${2:<args>})
+
+	implicit none
+
+	$0
+
+end subroutine $1
+
+endsnippet
+
+#------------------------ FUNCTION --------------------------------------------
+post_jump "if snip.tabstop == 0: add_varArgs_ts(snip,2,3,2,'function')"
+snippet "fun(ction)?" "function" rtm
+${1:<TYPE>} function ${2:${VISUAL:<func_name>}}(${3:<args>})
+`!p snip.rv = varArgsDef(t[3],False)`
+	! Output:
+	!	 $2 .
+
+	implicit none
+`!p snip.rv = varArgs(t[3],False,t[2])`
+	$0
+	
+	return
+end function $2 
+
+endsnippet 
+
+snippet func "simple function"
+${1:<TYPE>} function ${2:${VISUAL:<func_name>}}(${3:<args>})
+
+	implicit none
+
+	$0
+	
+	return
+end function $2
+
+endsnippet
+
+
+snippet test2
+bla <:${VISUAL:default2}>
+endsnippet	
+
+
+#------------------------ GLOBAL METHODS --------------------------------------
+global !p
+def split_args(args, delim):
+	return list(map(lambda x: x.strip(), args.split(delim)))
+	
+def get_tab():
+	ts = vim.eval("&ts")
+	return " "*int(ts)
+
+def get_indent():
+	col = snip.snippet_start[1]
+	return " "*int(col) + get_tab()
+
+def get_commentstring():
+	return vim.eval("&commentstring").strip("%s")
+
+def find_line_number(snip, text, to, step=1, off=0):
+	frm = snip.buffer.cursor.line
+
+	if snip.buffer.cursor.line+off < 0:
+		frm = -off 
+	for idx in range(frm+off, to, step):
+		line = snip.buffer[idx]
+		if any(s in line for s in text):
+			return idx
+	return None
+
+
+def complete(t, opts):
+	if t:
+		opts = [m[len(t):] for m in opts if m.startswith(t)]
+	if len(opts) == 1:
+		return opts[0]
+	return "{" + "|".join(opts) + "}" 
+
+
+def spread_output_args(args, n=1, spaces=-1):
+	outList = split_args(args,',')
+	result = ""
+	tab = get_tab()
+	if spaces == -1:
+		spaces = tab
+	cs = get_commentstring()
+
+	result += spaces + cs +" Output:\n"
+	i = n
+	for arg in outList:
+		result += spaces + cs + tab + arg.strip()+" $"+str(i)+",\n"
+		i += 1
+	return result[:-2] + ".\n"
+
+
+
+def varArgsDef(args, vis, n=1, spaces=-1):
+	result = ""
+	arg_result = ""
+	argList = split_args(args,',')
+	indent = get_indent()
+	tab = get_tab()
+	if spaces == -1:
+		spaces = tab
+	cs = get_commentstring()
+
+	if vis == True:
+		i = n
+		result += spaces + cs + " Task:\n"
+		result += spaces + cs + tab + "${"+str(i)+":<task>}\n" 			
+		result += spaces + cs +" Input:"
+		i += 1
+		for arg in argList:
+			dep = spaces + cs + tab + arg.strip() + " $"+str(i)+ ","
+			arg_result += "\n" + dep
+			i += 1
+
+		result += arg_result[:-1] + ".\n"
+		return  result
+
+	result += tab    + cs + " Task:\n"
+	result += indent + cs + tab + "<task>\n"
+	result += indent + cs + " Input:"
+	for arg in argList:
+		dep = indent + cs + tab + arg.strip() + " ," 
+		arg_result += "\n" + dep
+
+	result += arg_result[:-1] + "."
+	return result
+
+
+
+def varArgs(args, vis, oArgs, out=False, n=1, spaces=-1):
+	result = ""
+	argList = split_args(args,',')
+	outArgs = split_args(oArgs,',')
+	indent = get_indent()
+	tab = get_tab()
+	if spaces == -1:
+		spaces = tab
+
+	if vis == True:
+		i = n
+		for arg in argList:
+			intent_str = "inout" if arg in outArgs else "in"
+			dep = spaces + "${" + str(i) + ":<TYPE>}" \
+				+ ", intent(${" + str(i+1) + ":" + intent_str + "}) :: " + arg.strip()
+			result += "\n" + dep
+			i += 2
+
+		for arg in outArgs:
+			if arg in argList:
+				continue
+			dep = spaces + "${" + str(i) + ":<TYPE>}" \
+				+ ", intent(${" + str(i+1) + ":out}) :: " + arg.strip()
+		return result + "\n"
+
+	for arg in argList:
+		intent_str = "inout" if arg in outArgs else "in"
+		dep = indent + "<TYPE>" + ", intent("+intent_str+") :: " + arg.strip()
+		result += "\n" + dep
+	
+	if out == True:
+		for arg in outArgs:
+			if arg in argList:
+				continue
+			dep = indent + "<TYPE>" + ", intent(out) :: " + arg.strip()
+			result += "\n" + dep
+		
+	return result + "\n"
+
+
+
+def add_varArgs_ts(snip,dtsn,itsn,otsn,pre):
+	ts = snip.tabstops
+	ln = find_line_number(snip, [pre+' '+ts[dtsn].current_text], -1, step=-1)
+	tab = get_tab()
+	ni = len(ts[itsn].current_text.split(','))
+	no = len(ts[otsn].current_text.split(','))
+
+	body = varArgsDef(ts[itsn].current_text, True)
+	body += spread_output_args(ts[otsn].current_text, n=ni+1+4)
+	body += "\n" + tab + "implicit none\n"
+	body += varArgs(ts[itsn].current_text, True, ts[otsn].current_text, n=ni+no+5)
+	body += "\n" + tab + "$0"
+
+	diff = len(snip.buffer[snip.snippet_start[0]:snip.snippet_end[0]]) - \
+		len(body.splitlines())
+	snip.buffer[ln+1:snip.snippet_end[0]-diff] = ''
+	vim.command('normal '+str((ln+1)+1)+'G')
+	snip.expand_anon(body)
+
+
+def add_method_info(snip):
+	spaces, method = snip.buffer[snip.line].split(';')
+	cs = get_commentstring()
+	tab = get_tab()
+	kws = ['subroutine', 'function']
+	ln = find_line_number(snip, [kw + ' ' + method for kw in kws], 
+		len(snip.buffer), off=-1000000)
+	
+	snip.buffer[snip.line] = ''
+
+	if ln == None:
+		snip.expand_anon( spaces + 'info ' + method + ' ' + cs + ' NO SUCH METHOD' )
+		return
+	
+	line = snip.buffer[ln]
+	args = line[line.find("(")+1:line.find(")")].split(',')
+	
+	if line.strip().startswith(kws[0]):
+		body  = spaces + cs + " Task:\n" + spaces + cs + tab + "${1:<task>}.\n"
+		body += spaces + cs + " Input:\n"
+		i = 2
+		for arg in args:
+			body += spaces + cs + tab + arg.strip() + " $" + str(i) + ",\n"
+			i += 1
+		body = body[:-2] + ".\n"
+		body += spaces + cs + " Output:\n" + spaces + cs + tab + \
+			"${" + str(len(args)+2) + ":<output>}.$0"
+
+	if line.strip().startswith(kws[1]):
+		body  = spaces + cs + " Task:\n" + spaces + cs + tab + "${1:<task>}.\n"
+		body += spaces + cs + " Input:\n"
+		i = 2
+		for arg in args:
+			body += spaces + cs + tab + arg.strip() + " $" + str(i) + " ,\n"
+			i += 1
+		body = body[:-2] + ".\n"
+		body += spaces + cs + " Output:\n" + spaces + cs + tab + str(method) + \
+			" $" + str(len(args)+2) + ".$0"
+
+	snip.expand_anon(body)
+
+
+
+def get_args_below(snip,n):
+	lines_below = snip.buffer[snip.line+1:snip.line+n]
+	idx = 1
+	for line in lines_below.splitlines():
+		if len(line) > 0:
+			break
+		idx += 1
+
+	return snip.buffer[snip.line+idx].split('::')[1]
+
+def add_var_info(snip):
+	cs = get_commentstring()
+	tab = get_tab()	
+	spaces, header, args = snip.buffer[snip.line].split(';')
+
+	snip.buffer[snip.line] = ''
+	
+	if len(header) == 0:
+		body = spaces + '${0:<info>}\n'
+	else:	
+		body = spaces + cs + " " + str(header) + "\n"
+
+	i = 1
+	for arg in args.split(','):
+		body += spaces + cs	+ tab + arg.strip() + " $" + str(i) + " ,\n"
+		i += 1
+
+	if len(header) == 0:
+		body = body[:-2] + "."
+	else:
+		body = body[:-2] + ".$0"
+
+	snip.expand_anon(body)
+
+	
+
+def inq_info(t, is_fn):
+	tabstops = t
+	tab = get_tab()
+	spaces = get_indent()[:-len(tab)]
+	cs = get_commentstring() 
+	body = cs + " INFO: (will be removed after Snipped finished!)\n"
+	for i in range(2,len(tabstops)):
+		if len(tabstops[i]) == 0:
+			continue
+		if i == 2:
+			body += spaces + cs + tab  + " exist - logical value inqures whether the file exists,\n"
+		elif i == 3:
+			body += spaces + cs + tab  + "  form - character value indicating wheather the file is '(UN)FORMATTED',\n" 
+		elif i == 4:
+			body += spaces + cs + tab  + "access - character value indicating whether access is 'DIRECT'/'SEQUENTIAL',\n"
+		elif i == 5:
+			body += spaces + cs + tab  + "opened - logical value inquires whether the file is 'OPEN'ed,\n"
+
+	if is_fn:
+		body += spaces + cs + tab  + "number - integer value corresponding to the connected 'UNIT'."
+	if not is_fn:
+		body += spaces + cs + tab + "  name - character value returning 'FILENAME' of the connected unit.  "
+	return body 
+endglobal 		
