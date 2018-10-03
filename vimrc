@@ -219,8 +219,9 @@ highlight PmenuSel guifg=#FFFFFF
 " make YCM compatible with UltiSnips (using supertab)
 let g:ycm_key_list_select_completion = ['<C-n>', '<Down>']
 let g:ycm_key_list_previous_completion = ['<C-p>', '<Up>']
-let g:ycm_completion_confirm_key = '<Left>'
-let g:SuperTabDefaultCompletionType = '<C-n>'
+"let g:ycm_completion_confirm_key = '<S-Right>' 
+let g:ycm_key_list_stop_completion = ['<Right>']
+let g:SuperTabDefaultCompletionType = '<C-n>' 
 
 " close preview after completion
 let g:ycm_autoclose_preview_window_after_completion=1

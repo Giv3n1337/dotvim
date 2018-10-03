@@ -60,13 +60,21 @@ character(len=${1:<length>}) $0
 endsnippet
 
 
+snippet dp_def "defines dp = real_kind(15,307)"
+dp = real_kind(15,307)
+endsnippet 
+
+snippet qp_def "defines qp = real_kind(33,4931)"
+real_kind(33,4931)
+endsnippet
+
 snippet dp "double precision"
 double precision $0
 endsnippet
 
 
 snippet rdp "real(dp)"
-real(dp) $0
+real(${1:dp}) $0
 endsnippet
 
 

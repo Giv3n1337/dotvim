@@ -1,0 +1,24 @@
+[submodule "bundle/julia"]
+	path = bundle/julia
+	url = git@github.com:JuliaEditorSupport/julia-vim.git
+[submodule "bundle/bundle/gundo"]
+	path = bundle/bundle/gundo
+	url = http://github.com/sjl/gundo.vim.git
+[submodule "bundle/ag"]
+	path = bundle/ag
+	url = https://github.com/rking/ag.vim.git
+[submodule "autoload/vim-pathogen"]
+	path = autoload/vim-pathogen
+	url = https://github.com/tpope/vim-pathogen.git
+[submodule "bundle/gundo"]
+	path = bundle/gundo
+	url = http://github.com/sjl/gundo.vim.git
+[submodule "bundle/undotree"]
+	path = bundle/undotree
+	url = https://github.com/mbbill/undotree.git
+[submodule "bundle/vimtex"]
+	path = bundle/vimtex
+	url = https://github.com/lervag/vimtex.git
+[submodule "bundle/bundle/vimtex"]
+	path = bundle/bundle/vimtex
+	url = https://github.com/lervag/vimtex.git
