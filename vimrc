@@ -192,7 +192,11 @@ autocmd VimEnter * xnoremap <silent> <tab> :call UltiSnips#SaveLastVisualSelecti
 "let g:UltiSnipsSnippetsDir="~/.vim/UltiSnips"
 let g:UltiSnipsSnippetDiectories=["UltiSnips"]
 let g:UltiSnipsEditSplit="vertical"
-let g:UltiSnipsUsePythonVersion = 3
+if has('python3')
+  let g:UltiSnipsUsePythonVersion = 3
+else
+  let g:UltiSnipsUsePythonVersion = 2
+endif
 
 " julia
 let g:latex_to_unicode_auto = 1
@@ -255,3 +259,7 @@ let g:NERDToggleCheckAllLines = 1
 
 " remap comment toggle key
 vmap <silent><C-c> <Plug>NERDCommenterToggle
+
+set encoding=utf-8
+
+set backspace=2 " make backspace work like most other programs
